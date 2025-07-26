@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Country Guide</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background:linear-gradient(#ad4e0f,#fff,#22b40f);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      display: block;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px 5px;
+      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      
+    }
+    button {
+  padding: 12px 25px;
+  font-size: 1rem;
+  color: white;
+  background-color:#22b40f;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  margin-left: 10px;
+}
+button:hover {
+  background-color: #4e4bee;
+}
+    
+    #countryInfo {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .country-card {
+      background-color: white;
+      padding: 20px;
+      width: 300px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .country-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: contain;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌎 Country Guide</h1>
+  <input type="text" id="searchInput" placeholder="Enter country name" />
+  <button onclick="searchCountry()">Search</button>
+  <div id="countryInfo"></div>
+
+  <script>
+    function searchCountry() {
+      const name = document.getElementById("searchInput").value.trim();
+
+      if (name === "") {
+        alert("Please enter a country name");
+        return;
+      }
+
+      const url = `https://restcountries.com/v3.1/name/${name}`;
+
+      fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Country not found");
+          }
+          return response.json();
+        })
+        .then(data => {
+          const country = data[0];
+          const languages = country.languages
+            ? Object.values(country.languages).join(", ")
+            : "N/A";
+          const currency = country.currencies
+            ? Object.values(country.currencies)[0].name
+            : "N/A";
+
+          document.getElementById("countryInfo").innerHTML = `
+            <div class="country-card">
+              <img src="${country.flags.svg}" alt="${country.name.common} Flag" />
+              <h2>${country.name.common}</h2>
+              <p><strong>Capital:</strong> ${country.capital}</p>
+              <p><strong>Region:</strong> ${country.region}</p>
+              <p><strong>Population:</strong> ${country.population.toLocaleString()}</p>
+              <p><strong>Languages:</strong> ${languages}</p>
+              <p><strong>Currency:</strong> ${currency}</p>
+            </div>
+          `;
+        })
+        .catch(error => {
+          document.getElementById("countryInfo").innerHTML =
+            `<p style="color:red;">${error.message}</p>`;
+        });
+    }
+  </script>
+</body>
+</html>
+
