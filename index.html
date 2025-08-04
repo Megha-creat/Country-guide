@@ -8,38 +8,35 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background:linear-gradient(#ad4e0f,#fff,#22b40f);
+      background: linear-gradient(#ad4e0f, #fff, #22b40f);
       height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
       padding: 20px;
-      display: block;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      text-align: center;
     }
     input, button {
       padding: 10px;
       font-size: 16px;
       margin: 10px 5px;
       font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-      
     }
     button {
-  padding: 12px 25px;
-  font-size: 1rem;
-  color: white;
-  background-color:#22b40f;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  margin-left: 10px;
-}
-button:hover {
-  background-color: #4e4bee;
-}
-    
+      padding: 12px 25px;
+      font-size: 1rem;
+      color: white;
+      background-color: #22b40f;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-left: 10px;
+    }
+    button:hover {
+      background-color: #4e4bee;
+    }
     #countryInfo {
       margin-top: 20px;
       display: flex;
@@ -68,47 +65,58 @@ button:hover {
 
   <script>
     function searchCountry() {
-      const name = document.getElementById("searchInput").value.trim();
+      const name = document.getElementById("searchInput").value.trim().toLowerCase();
 
-      if (name === "") {
+      if (!name) {
         alert("Please enter a country name");
         return;
       }
 
-      const url = `https://restcountries.com/v3.1/name/${name}`;
+      const url = `https://restcountries.com/v3.1/name/${name}?fullText=false`;
 
       fetch(url)
         .then(response => {
-          if (!response.ok) {
-            throw new Error("Country not found");
-          }
+          if (!response.ok) throw new Error("Country not found");
           return response.json();
         })
         .then(data => {
-          const country = data[0];
-          const languages = country.languages
-            ? Object.values(country.languages).join(", ")
-            : "N/A";
-          const currency = country.currencies
-            ? Object.values(country.currencies)[0].name
-            : "N/A";
+  const searchName = document.getElementById("searchInput").value.trim().toLowerCase();
+  const country = data.find(c => c.name.common.toLowerCase() === searchName);
 
-          document.getElementById("countryInfo").innerHTML = `
-            <div class="country-card">
-              <img src="${country.flags.svg}" alt="${country.name.common} Flag" />
-              <h2>${country.name.common}</h2>
-              <p><strong>Capital:</strong> ${country.capital}</p>
-              <p><strong>Region:</strong> ${country.region}</p>
-              <p><strong>Population:</strong> ${country.population.toLocaleString()}</p>
-              <p><strong>Languages:</strong> ${languages}</p>
-              <p><strong>Currency:</strong> ${currency}</p>
-            </div>
-          `;
-        })
-        .catch(error => {
-          document.getElementById("countryInfo").innerHTML =
-            `<p style="color:red;">${error.message}</p>`;
-        });
+  if (!country) {
+    throw new Error(`${searchName.charAt(0).toUpperCase() + searchName.slice(1)} not found in search results`);
+  }
+
+  const languages = country.languages
+    ? Object.values(country.languages).join(", ")
+    : "N/A";
+
+  const currency = country.currencies
+    ? Object.values(country.currencies)[0].name + " (" + Object.values(country.currencies)[0].symbol + ")"
+    : "N/A";
+
+  const capital = country.capital && country.capital.length > 0
+    ? country.capital[0]
+    : "N/A";
+
+  document.getElementById("countryInfo").innerHTML = `
+    <div class="country-card">
+      <img src="${country.flags.svg}" alt="${country.name.common} Flag" />
+      <h2>${country.name.common}</h2>
+      <p><strong>Capital:</strong> ${capital}</p>
+      <p><strong>Region:</strong> ${country.region}</p>
+      <p><strong>Population:</strong> ${country.population.toLocaleString()}</p>
+      <p><strong>Languages:</strong> ${languages}</p>
+      <p><strong>Currency:</strong> ${currency}</p>
+    </div>
+  `;
+})
+
+ 
+      .catch(error => {
+       document.getElementById("countryInfo").innerHTML =
+        `<p style="color:red;">${error.message}</p>`;
+     });
     }
   </script>
 </body>
